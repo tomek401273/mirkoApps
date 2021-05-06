@@ -1,0 +1,51 @@
+curl --location --request POST 'localhost:8082/credit' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+ "productDto":   {
+    "productName": "productName",
+    "value": 12
+},
+
+"creditDto": {
+    "creditName": "creditName"
+},
+"customerDto": {
+
+    "surname": "surname",
+    "firstName": "dsfd2s",
+    "pesel": "71071235196"
+}
+}'
+
+-------------------------------------------------
+curl --location --request GET 'localhost:8082/credit' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+ "productDto":   {
+    "productName": "logic2",
+    "value": 12
+},
+
+"creditDto": {
+    "creditName": "logic21122"
+},
+"customerDto": {
+
+    "surname": "logic",
+    "firstName": "dsfd2s",
+    "pesel": "71071235196"
+}
+}'
+---------------------------------------------------------
+curl --location --request POST 'localhost:8081/product' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "productName": "productName",
+    "value": 12
+}'
+----------------------------------------------------------
+{
+    "creditName": "creditName"
+}
