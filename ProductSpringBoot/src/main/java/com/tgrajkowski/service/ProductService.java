@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -27,16 +29,22 @@ public class ProductService {
                 .orElse(null);
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductDto> getProducts() {
+        List<ProductEntity> productEntityList = productRepository.findAll();
+        return productEntityList.stream().map(productMapper::mapToProductDto)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public Integer createProduct(ProductDto productDto) {
         Optional<ProductEntity> productEntityOptional = productRepository
                 .findProductEntitiesByProductNameAndValue(productDto.getProductName(), productDto.getValue());
-        if (productEntityOptional.isEmpty()){
+        if (productEntityOptional.isEmpty()) {
             ProductEntity productEntity = productMapper.mapToProductEntity(productDto);
             productRepository.save(productEntity);
             return productEntity.getProductId();
-        }
-        else {
+        } else {
             return productEntityOptional.get().getProductId();
         }
     }

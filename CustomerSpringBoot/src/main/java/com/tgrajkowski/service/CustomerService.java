@@ -1,14 +1,15 @@
 package com.tgrajkowski.service;
 
-import com.tgrajkowski.model.CustomerEntity;
 import com.tgrajkowski.model.CustomerDto;
+import com.tgrajkowski.model.CustomerEntity;
 import com.tgrajkowski.model.CustomerRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -41,5 +42,12 @@ public class CustomerService {
         return customerOptional
                 .map(customerMapper::maptoCustomerDto)
                 .orElse(null);
+    }
+
+    public List<CustomerDto> getCustomers() {
+        List<CustomerEntity> customerOptional = customerRepository.findAll();
+        return customerOptional.stream()
+                .map(customerMapper::maptoCustomerDto)
+                .collect(Collectors.toList());
     }
 }

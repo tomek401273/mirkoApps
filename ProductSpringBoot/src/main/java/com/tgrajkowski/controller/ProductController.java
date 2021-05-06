@@ -5,6 +5,7 @@ import com.tgrajkowski.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -24,4 +25,10 @@ public class ProductController {
     public ProductDto getProduct(@PathVariable("productId") Integer productId) {
         return productService.getProduct(productId);
     }
+
+    @GetMapping
+    public List<ProductDto> getProduct() {
+        return productService.getProducts();
+    }
+
 }
