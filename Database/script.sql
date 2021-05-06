@@ -1,0 +1,3 @@
+CREATE SCHEMA CreditDb;
+CREATE SCHEMA CustomerDb;
+CREATE SCHEMA ProductDb;
