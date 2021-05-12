@@ -63,10 +63,10 @@ public class CreditService {
     public List<CreditCustomerProductDto> findAll() {
 
         CustomerDto[] customers = customerService.getCustomers();
-        Map<Integer, CustomerDto> integerCustomerDtoMap =customerService.groupById(customers);
+        Map<Integer, CustomerDto> idCustomerDtoMap =customerService.groupById(customers);
 
         ProductDto[] productDtos = productService.getProducts();
-        Map<Integer, ProductDto> integerProductDtoMap = productService.groupById(productDtos);
+        Map<Integer, ProductDto> idProductDtoMap = productService.groupById(productDtos);
 
         List<CreditEntity> creditEntities = creditRepository.findAll();
 
@@ -76,8 +76,8 @@ public class CreditService {
             creditCustomerProductDtos.add(
                     new CreditCustomerProductDto(
                             creditMapper.mapToCreditDto(creditEntity),
-                            integerCustomerDtoMap.get(creditEntity.getCustomerId()),
-                            integerProductDtoMap.get(creditEntity.getProductId())
+                            idCustomerDtoMap.get(creditEntity.getCustomerId()),
+                            idProductDtoMap.get(creditEntity.getProductId())
                     ));
         }
 

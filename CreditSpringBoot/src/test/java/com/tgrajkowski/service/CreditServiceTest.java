@@ -1,56 +1,44 @@
 package com.tgrajkowski.service;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.tgrajkowski.configuration.ApplicationConfig;
+import com.tgrajkowski.model.CreditCustomerProductDto;
+import com.tgrajkowski.model.credit.CreditDto;
+import com.tgrajkowski.model.credit.CreditEntity;
+import com.tgrajkowski.model.credit.CreditRepository;
 import com.tgrajkowski.model.credit.CreditRepositoryPaging;
 import com.tgrajkowski.model.customer.CustomerDto;
+import com.tgrajkowski.model.product.ProductDto;
 import com.tgrajkowski.service.customer.CustomerService;
-import org.junit.jupiter.api.BeforeEach;
+import com.tgrajkowski.service.product.ProductService;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @TestPropertySource(locations = "classpath:application-test.properties")
 @ActiveProfiles("test")
 @SpringBootTest
 class CreditServiceTest {
-    @Autowired
+    @InjectMocks
     private CreditService creditService;
-
-    private WireMockServer wireMockServer;
-
-
-    @Autowired
+    @Mock
     private CreditMapper creditMapper;
-    @Autowired
+    @Mock
     private CreditRepositoryPaging creditRepositoryPaging;
-    @Autowired
-    private RetrieveDataFromApi retrieveDataFromApi;
-    @Autowired
-    private ApplicationConfig applicationConfig;
-    @Autowired
+    @Mock
+    private CreditRepository creditRepository;
+    @Mock
     private CustomerService customerService;
-
-    @BeforeEach
-    public void setup() {
-        wireMockServer = new WireMockServer(options().port(8084));
-        wireMockServer.start();
-        System.out.println("wireMockServer.port(): " + wireMockServer.port());
-//        webClient = WebClient.builder().baseUrl(String.format("http://localhost:%d", wireMockServer.port())).build();
-//        sessionService = new SessionService(webClient);
-//        RestTemplate restTemplate=
-//        retrieveDataFromGiHubApi = new RetrieveDataFromGiHubApi();
-//        creditService= new CreditService(creditMapper, creditRepository, retrieveDataFromGiHubApi, applicationConfig);
-    }
+    @Mock
+    private ProductService productService;
 
     @Test
     void createCredit() {
@@ -64,19 +52,170 @@ class CreditServiceTest {
     void getCustomer() {
     }
 
-    @Test
-    void createUriForAccountDetails() {
-        wireMockServer.stubFor(post(urlEqualTo("/customer/"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("-1236")));
 
-        CustomerDto customerDto = CustomerDto.builder()
-                .firstName("FirstName")
-                .pesel("71071235196")
-                .surname("Surname")
-                .build();
-        customerService.postCustomer(customerDto);
+    @Test
+    void testCreateCredit() {
     }
+
+    @Test
+    void testFindAllOk() {
+        CustomerDto[] customerDtos = new CustomerDto[]{
+                CustomerDto.builder().id(1).firstName("customer1").build(),
+                CustomerDto.builder().id(2).firstName("customer2").build()
+        };
+        ProductDto[] productDtos = new ProductDto[]{
+                ProductDto.builder().productId(1).productName("productName1").value(12).build(),
+                ProductDto.builder().productId(2).productName("productName2").value(13).build()
+        };
+        List<CreditEntity> creditEntities = new ArrayList<>();
+        creditEntities.add(CreditEntity.builder().creditId(11).creditName("creditName1").productId(1).customerId(1).build());
+        creditEntities.add(CreditEntity.builder().creditId(22).creditName("creditName2").productId(2).customerId(2).build());
+
+        List<CreditDto> creditDtoList = new ArrayList<>();
+        creditDtoList.add(CreditDto.builder().creditId(11).creditName("creditName1").build());
+        creditDtoList.add(CreditDto.builder().creditId(22).creditName("creditName2").build());
+
+        Map<Integer, ProductDto> idProductDtoMap = new HashMap<>();
+        idProductDtoMap.put(1, productDtos[0]);
+        idProductDtoMap.put(2, productDtos[1]);
+
+        Map<Integer, CustomerDto> idCustomerDtoMap = new HashMap<>();
+        idCustomerDtoMap.put(1, customerDtos[0]);
+        idCustomerDtoMap.put(2, customerDtos[1]);
+
+        Mockito.when(customerService.getCustomers()).thenReturn(customerDtos);
+        Mockito.when(productService.getProducts()).thenReturn(productDtos);
+        Mockito.when(creditRepository.findAll()).thenReturn(creditEntities);
+        Mockito.when(creditMapper.mapToCreditDto(creditEntities.get(0))).thenReturn(creditDtoList.get(0));
+        Mockito.when(creditMapper.mapToCreditDto(creditEntities.get(1))).thenReturn(creditDtoList.get(1));
+        Mockito.when(customerService.groupById(customerDtos)).thenReturn(idCustomerDtoMap);
+        Mockito.when(productService.groupById(productDtos)).thenReturn(idProductDtoMap);
+
+        List<CreditCustomerProductDto> all = creditService.findAll();
+        Assert.assertEquals(creditEntities.size(), all.size());
+        Assert.assertEquals(creditEntities.get(0).getCreditId(), all.get(0).getCreditDto().getCreditId());
+        Assert.assertEquals(creditEntities.get(0).getCreditName(), all.get(0).getCreditDto().getCreditName());
+        Assert.assertEquals(customerDtos[0].getId(), all.get(0).getCustomerDto().getId());
+        Assert.assertEquals(customerDtos[0].getPesel(), all.get(0).getCustomerDto().getPesel());
+        Assert.assertEquals(customerDtos[0].getFirstName(), all.get(0).getCustomerDto().getFirstName());
+        Assert.assertEquals(customerDtos[0].getSurname(), all.get(0).getCustomerDto().getSurname());
+        Assert.assertEquals(productDtos[0].getProductId(), all.get(0).getProductDto().getProductId());
+        Assert.assertEquals(productDtos[0].getProductName(), all.get(0).getProductDto().getProductName());
+        Assert.assertEquals(productDtos[0].getValue(), all.get(0).getProductDto().getValue());
+    }
+
+
+    @Test
+    void testFindAllEmptyCustomers() {
+        CustomerDto[] customerDtos = new CustomerDto[]{};
+        ProductDto[] productDtos = new ProductDto[]{
+                ProductDto.builder().productId(1).productName("productName1").value(12).build(),
+                ProductDto.builder().productId(2).productName("productName2").value(13).build()
+        };
+        List<CreditEntity> creditEntities = new ArrayList<>();
+        creditEntities.add(CreditEntity.builder().creditId(11).creditName("creditName1").productId(1).customerId(1).build());
+        creditEntities.add(CreditEntity.builder().creditId(22).creditName("creditName2").productId(2).customerId(2).build());
+
+        List<CreditDto> creditDtoList = new ArrayList<>();
+        creditDtoList.add(CreditDto.builder().creditId(11).creditName("creditName1").build());
+        creditDtoList.add(CreditDto.builder().creditId(22).creditName("creditName2").build());
+
+        Map<Integer, ProductDto> idProductDtoMap = new HashMap<>();
+        idProductDtoMap.put(1, productDtos[0]);
+        idProductDtoMap.put(2, productDtos[1]);
+
+        Map<Integer, CustomerDto> idCustomerDtoMap = new HashMap<>();
+
+        Mockito.when(customerService.getCustomers()).thenReturn(customerDtos);
+        Mockito.when(productService.getProducts()).thenReturn(productDtos);
+        Mockito.when(creditRepository.findAll()).thenReturn(creditEntities);
+        Mockito.when(creditMapper.mapToCreditDto(creditEntities.get(0))).thenReturn(creditDtoList.get(0));
+        Mockito.when(creditMapper.mapToCreditDto(creditEntities.get(1))).thenReturn(creditDtoList.get(1));
+        Mockito.when(customerService.groupById(customerDtos)).thenReturn(idCustomerDtoMap);
+        Mockito.when(productService.groupById(productDtos)).thenReturn(idProductDtoMap);
+
+        List<CreditCustomerProductDto> all = creditService.findAll();
+        Assert.assertEquals(creditEntities.size(), all.size());
+        Assert.assertEquals(creditEntities.get(0).getCreditId(), all.get(0).getCreditDto().getCreditId());
+        Assert.assertEquals(creditEntities.get(0).getCreditName(), all.get(0).getCreditDto().getCreditName());
+        Assert.assertNull(all.get(0).getCustomerDto());
+
+        Assert.assertEquals(productDtos[0].getProductId(), all.get(0).getProductDto().getProductId());
+        Assert.assertEquals(productDtos[0].getProductName(), all.get(0).getProductDto().getProductName());
+        Assert.assertEquals(productDtos[0].getValue(), all.get(0).getProductDto().getValue());
+    }
+
+
+    @Test
+    void testFindAllEmptyProducts() {
+        CustomerDto[] customerDtos = new CustomerDto[]{
+                CustomerDto.builder().id(1).firstName("customer1").build(),
+                CustomerDto.builder().id(2).firstName("customer2").build()
+        };
+        ProductDto[] productDtos = new ProductDto[]{};
+        List<CreditEntity> creditEntities = new ArrayList<>();
+        creditEntities.add(CreditEntity.builder().creditId(11).creditName("creditName1").productId(1).customerId(1).build());
+        creditEntities.add(CreditEntity.builder().creditId(22).creditName("creditName2").productId(2).customerId(2).build());
+
+        List<CreditDto> creditDtoList = new ArrayList<>();
+        creditDtoList.add(CreditDto.builder().creditId(11).creditName("creditName1").build());
+        creditDtoList.add(CreditDto.builder().creditId(22).creditName("creditName2").build());
+
+        Map<Integer, ProductDto> idProductDtoMap = new HashMap<>();
+
+        Map<Integer, CustomerDto> idCustomerDtoMap = new HashMap<>();
+        idCustomerDtoMap.put(1, customerDtos[0]);
+        idCustomerDtoMap.put(2, customerDtos[1]);
+
+        Mockito.when(customerService.getCustomers()).thenReturn(customerDtos);
+        Mockito.when(productService.getProducts()).thenReturn(productDtos);
+        Mockito.when(creditRepository.findAll()).thenReturn(creditEntities);
+        Mockito.when(creditMapper.mapToCreditDto(creditEntities.get(0))).thenReturn(creditDtoList.get(0));
+        Mockito.when(creditMapper.mapToCreditDto(creditEntities.get(1))).thenReturn(creditDtoList.get(1));
+        Mockito.when(customerService.groupById(customerDtos)).thenReturn(idCustomerDtoMap);
+        Mockito.when(productService.groupById(productDtos)).thenReturn(idProductDtoMap);
+
+        List<CreditCustomerProductDto> all = creditService.findAll();
+        Assert.assertEquals(creditEntities.size(), all.size());
+        Assert.assertEquals(creditEntities.get(0).getCreditId(), all.get(0).getCreditDto().getCreditId());
+        Assert.assertEquals(creditEntities.get(0).getCreditName(), all.get(0).getCreditDto().getCreditName());
+        Assert.assertEquals(customerDtos[0].getId(), all.get(0).getCustomerDto().getId());
+        Assert.assertEquals(customerDtos[0].getPesel(), all.get(0).getCustomerDto().getPesel());
+        Assert.assertEquals(customerDtos[0].getFirstName(), all.get(0).getCustomerDto().getFirstName());
+        Assert.assertEquals(customerDtos[0].getSurname(), all.get(0).getCustomerDto().getSurname());
+        Assert.assertNull(all.get(0).getProductDto());
+    }
+
+
+    @Test
+    void testFindAllEmptyCredits() {
+        CustomerDto[] customerDtos = new CustomerDto[]{
+                CustomerDto.builder().id(1).firstName("customer1").build(),
+                CustomerDto.builder().id(2).firstName("customer2").build()
+        };
+        ProductDto[] productDtos = new ProductDto[]{
+                ProductDto.builder().productId(1).productName("productName1").value(12).build(),
+                ProductDto.builder().productId(2).productName("productName2").value(13).build()
+        };
+        List<CreditEntity> creditEntities = new ArrayList<>();
+
+        Map<Integer, ProductDto> idProductDtoMap = new HashMap<>();
+        idProductDtoMap.put(1, productDtos[0]);
+        idProductDtoMap.put(2, productDtos[1]);
+
+        Map<Integer, CustomerDto> idCustomerDtoMap = new HashMap<>();
+        idCustomerDtoMap.put(1, customerDtos[0]);
+        idCustomerDtoMap.put(2, customerDtos[1]);
+
+        Mockito.when(customerService.getCustomers()).thenReturn(customerDtos);
+        Mockito.when(productService.getProducts()).thenReturn(productDtos);
+        Mockito.when(creditRepository.findAll()).thenReturn(creditEntities);
+        Mockito.when(customerService.groupById(customerDtos)).thenReturn(idCustomerDtoMap);
+        Mockito.when(productService.groupById(productDtos)).thenReturn(idProductDtoMap);
+
+        List<CreditCustomerProductDto> all = creditService.findAll();
+        Assert.assertEquals(creditEntities.size(), all.size());
+    }
+
+
 }

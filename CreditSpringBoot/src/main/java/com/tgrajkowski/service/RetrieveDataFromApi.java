@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.ConnectException;
 import java.net.URI;
@@ -25,7 +26,7 @@ public class RetrieveDataFromApi {
     public CustomerDto[] getCustomersData(URI uri) {
         try {
             return restTemplate.getForObject(uri, CustomerDto[].class);
-        } catch (RestClientResponseException e) {
+        } catch (RestClientResponseException | ResourceAccessException | ResponseStatusException e) {
             log.warn("problem with customeService: " + e.getMessage());
         }
         return new CustomerDto[0];
@@ -34,7 +35,7 @@ public class RetrieveDataFromApi {
     public ProductDto[] getProductsData(URI uri) {
         try {
            return restTemplate.getForObject(uri, ProductDto[].class);
-        } catch (RestClientResponseException | ResourceAccessException e) {
+        } catch (RestClientResponseException | ResourceAccessException | ResponseStatusException e) {
             log.warn("problem with productService: " + e.getMessage());
         }
         return new ProductDto[0];
