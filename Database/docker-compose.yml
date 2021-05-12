@@ -1,0 +1,30 @@
+version: "3"
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5430:5432"
+    environment:
+      - "POSTGRES_USER=docker"
+      - "POSTGRES_PASSWORD=docker"
+      - "POSTGRES_DB=docker"
+#  customer-service:
+#    build:
+#      context: ../CustomerSpringBoot
+#      dockerfile: CustomerSpringBoot/Dockerfile
+#    ports:
+#      - "8080:8080"
+#  product-service:
+#    build:
+#      context: ../ProductSpringBoot
+#      dockerfile: ProductSpringBoot/Dockerfile
+#    ports:
+#      - "8081:8081"
+#  credit-service:
+#    build:
+#      context: ../CreditSpringBoot
+#      dockerfile: CreditSpringBoot/Dockerfile
+#    ports:
+#     - "8082:8082"

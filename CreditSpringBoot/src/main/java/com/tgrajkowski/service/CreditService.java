@@ -1,6 +1,5 @@
 package com.tgrajkowski.service;
 
-import com.tgrajkowski.configuration.ApplicationConfig;
 import com.tgrajkowski.model.CreditCustomerProductDto;
 import com.tgrajkowski.model.credit.CreditDto;
 import com.tgrajkowski.model.credit.CreditEntity;
@@ -8,27 +7,29 @@ import com.tgrajkowski.model.credit.CreditRepository;
 import com.tgrajkowski.model.credit.CreditRepositoryPaging;
 import com.tgrajkowski.model.customer.CustomerDto;
 import com.tgrajkowski.model.product.ProductDto;
+import com.tgrajkowski.service.customer.CustomerService;
+import com.tgrajkowski.service.product.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.*;
 
 @Service
 public class CreditService {
     private final CreditMapper creditMapper;
     private final CreditRepositoryPaging creditRepositoryPaging;
-    private final RetrieveDataFromApi retrieveDataFromApi;
-    private final ApplicationConfig applicationConfig;
     private final CreditRepository creditRepository;
+    private final CustomerService customerService;
+    private final ProductService productService;
 
-    public CreditService(CreditMapper creditMapper, CreditRepositoryPaging creditRepositoryPaging, RetrieveDataFromApi retrieveDataFromApi, ApplicationConfig applicationConfig, CreditRepository creditRepository) {
+    @Autowired
+    public CreditService(CreditMapper creditMapper, CreditRepositoryPaging creditRepositoryPaging, CreditRepository creditRepository, CustomerService customerService, ProductService productService) {
         this.creditMapper = creditMapper;
         this.creditRepositoryPaging = creditRepositoryPaging;
-        this.retrieveDataFromApi = retrieveDataFromApi;
-        this.applicationConfig = applicationConfig;
         this.creditRepository = creditRepository;
+        this.customerService = customerService;
+        this.productService = productService;
     }
 
     @Transactional
@@ -37,8 +38,8 @@ public class CreditService {
                 creditRepositoryPaging.findCreditEntityByCreditName(creditCustomerProductDto.getCreditDto().getCreditName());
         if (creditEntityOptional.isEmpty()) {
 
-            Integer customerId = postCustomer(creditCustomerProductDto.getCustomerDto());
-            Integer productId = postProduct(creditCustomerProductDto.getProductDto());
+            Integer customerId = customerService.postCustomer(creditCustomerProductDto.getCustomerDto());
+            Integer productId = productService.postProduct(creditCustomerProductDto.getProductDto());
 
             CreditEntity creditEntity = creditMapper
                     .mapToCreditEntity(creditCustomerProductDto.getCreditDto(), customerId, productId);
@@ -58,60 +59,20 @@ public class CreditService {
                 .orElse(null);
     }
 
-    public CustomerDto[] getCustomers() {
-        URI uri = createCustomerUri("");
-        CustomerDto[] customerDtos = retrieveDataFromApi.getCustomersData(uri);
-        return customerDtos;
-    }
-
-    public ProductDto[] getProducts() {
-        URI uri = createProductUri("");
-        ProductDto[] customerDtos = retrieveDataFromApi.getProductsData(uri);
-        return customerDtos;
-    }
-
-    public Integer postProduct(ProductDto productDto) {
-        URI uri = createProductUri("");
-        return retrieveDataFromApi.postData(uri, productDto);
-    }
-
-    public URI createProductUri(String productId) {
-        return UriComponentsBuilder.fromHttpUrl(applicationConfig.getProductApiLink() + "/product/" + productId)
-                .build().encode().toUri();
-    }
-
-    public Integer postCustomer(CustomerDto customerDto) {
-        URI uri = createCustomerUri("");
-        return retrieveDataFromApi.postData(uri, customerDto);
-    }
-
-    public URI createCustomerUri(String customerId) {
-        return UriComponentsBuilder.fromHttpUrl(applicationConfig.getCustomerApiLink() + "/customer/" + customerId)
-                .build().encode().toUri();
-    }
-
 
     public List<CreditCustomerProductDto> findAll() {
+
+        CustomerDto[] customers = customerService.getCustomers();
+        Map<Integer, CustomerDto> integerCustomerDtoMap =customerService.groupById(customers);
+
+        ProductDto[] productDtos = productService.getProducts();
+        Map<Integer, ProductDto> integerProductDtoMap = productService.groupById(productDtos);
+
         List<CreditEntity> creditEntities = creditRepository.findAll();
-        CustomerDto[] customers = getCustomers();
-        ProductDto[] productDtos = getProducts();
-        Map<Integer, CustomerDto> integerCustomerDtoMap = new HashMap<>();
-        for (CustomerDto customerDto : customers
-        ) {
-            integerCustomerDtoMap.put(customerDto.getId(), customerDto);
-        }
 
-        Map<Integer, ProductDto> integerProductDtoMap = new HashMap<>();
-        for (ProductDto productDto : productDtos
-        ) {
-            integerProductDtoMap.put(productDto.getProductId(), productDto);
-        }
+        List<CreditCustomerProductDto> creditCustomerProductDtos = new LinkedList<>();
 
-        List<CreditCustomerProductDto> creditCustomerProductDtos = new ArrayList<>();
-
-
-        for (CreditEntity creditEntity : creditEntities
-        ) {
+        for (CreditEntity creditEntity : creditEntities) {
             creditCustomerProductDtos.add(
                     new CreditCustomerProductDto(
                             creditMapper.mapToCreditDto(creditEntity),

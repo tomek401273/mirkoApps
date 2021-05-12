@@ -2,7 +2,6 @@ package com.tgrajkowski.service;
 
 import com.tgrajkowski.model.customer.CustomerDto;
 import com.tgrajkowski.model.product.ProductDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,11 +23,11 @@ public class RetrieveDataFromApi {
         return restTemplate.getForObject(uri, ProductDto[].class);
     }
 
-    public Integer postData(URI uri, CustomerDto customerDto){
+    public Integer postCustomer(URI uri, CustomerDto customerDto){
         return restTemplate.postForObject(uri,customerDto, Integer.class);
     }
 
-    public Integer postData(URI uri, ProductDto customerDto){
+    public Integer postProduct(URI uri, ProductDto customerDto){
         return restTemplate.postForObject(uri, customerDto, Integer.class);
     }
 }

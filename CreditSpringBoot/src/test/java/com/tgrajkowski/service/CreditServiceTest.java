@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.tgrajkowski.configuration.ApplicationConfig;
 import com.tgrajkowski.model.credit.CreditRepositoryPaging;
 import com.tgrajkowski.model.customer.CustomerDto;
+import com.tgrajkowski.service.customer.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,8 @@ class CreditServiceTest {
     private RetrieveDataFromApi retrieveDataFromApi;
     @Autowired
     private ApplicationConfig applicationConfig;
+    @Autowired
+    private CustomerService customerService;
 
     @BeforeEach
     public void setup() {
@@ -74,7 +77,6 @@ class CreditServiceTest {
                 .pesel("71071235196")
                 .surname("Surname")
                 .build();
-
-        creditService.postCustomer(customerDto);
+        customerService.postCustomer(customerDto);
     }
 }
