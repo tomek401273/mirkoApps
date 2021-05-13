@@ -1,0 +1,86 @@
+uruchomienie bazy danych
+cd Database/
+docker-compose up
+
+uruchomienie aplikacji
+
+cd CreditSpringBoot
+mvn spring-boot:run
+
+cd CustomerSpringBoot
+mvn spring-boot:run
+
+cd ProductSpringBoot/
+mvn spring-boot:run
+
+przykłady wywołania requestów
+
+curl --location --request GET 'http://localhost:8080/customer/4' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "surname": "surname",
+    "firstName": "name",
+    "pesel": "71071235196"
+}'
+
+
+curl --location --request POST 'localhost:8081/product' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "productName": "productName",
+    "value": 12
+}'
+
+
+curl --location --request POST 'localhost:8082/credit' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+ "productDto":   {
+    "productName": "productName",
+    "value": 12
+},
+
+"creditDto": {
+    "creditName": "creditName2"
+},
+"customerDto": {
+
+    "surname": "surname",
+    "firstName": "dsfd2s",
+    "pesel": "71071235196"
+}
+}'
+
+
+curl --location --request GET 'localhost:8082/credit' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+ "productDto":   {
+    "productName": "productName",
+    "value": 12
+},
+
+"creditDto": {
+    "creditName": "creditName"
+},
+"customerDto": {
+
+    "surname": "surname",
+    "firstName": "dsfd2s",
+    "pesel": "71071235196"
+}
+}'
+
+curl --location --request GET 'http://localhost:8081/product/'
+
+
+curl --location --request POST 'http://localhost:8080/customer/' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+
+    "surname": "surname",
+    "firstName": "33",
+    "pesel": "71071235196"
+}'
