@@ -1,6 +1,6 @@
 package com.tgrajkowski.controller;
 
-import com.tgrajkowski.exception.ImproperSampleFormatException;
+import com.tgrajkowski.exception.MicroserviceUnavailableException;
 import com.tgrajkowski.model.CreditCustomerProductDto;
 import com.tgrajkowski.model.credit.CreditDto;
 import com.tgrajkowski.service.CreditService;
@@ -34,9 +34,9 @@ public class CreditController {
         return creditService.findAll();
     }
 
-    @ExceptionHandler(ImproperSampleFormatException.class)
+    @ExceptionHandler(MicroserviceUnavailableException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleImproperSampleFormatException(ImproperSampleFormatException e) {
+    public String handleImproperSampleFormatException(MicroserviceUnavailableException e) {
         return "Sorry one of microservices is down. Retry after a while. "+e.getMessage();
     }
 }
