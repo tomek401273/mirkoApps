@@ -21,17 +21,14 @@ public class CustomerDto {
 
     @NotEmpty
     @Size(max = 20)
-    @NotNull
     private String firstName;
 
     @NotEmpty
     @Size(max = 20)
-    @NotNull
     @PESEL
     private String pesel;
 
     @NotEmpty
     @Size(max = 20)
-    @NotNull
     private String surname;
 }

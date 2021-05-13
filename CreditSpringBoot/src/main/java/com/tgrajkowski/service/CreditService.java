@@ -40,11 +40,16 @@ public class CreditService {
 
             Integer customerId = customerService.postCustomer(creditCustomerProductDto.getCustomerDto());
             Integer productId = productService.postProduct(creditCustomerProductDto.getProductDto());
+            if (customerId==null)
+                throw  new RuntimeException("customer id Not present");
+
+            if (productId==null)
+                throw  new RuntimeException("product id not present ");
 
             CreditEntity creditEntity = creditMapper
                     .mapToCreditEntity(creditCustomerProductDto.getCreditDto(), customerId, productId);
 
-            creditRepositoryPaging.save(creditEntity);
+            creditEntity =creditRepositoryPaging.save(creditEntity);
             return creditEntity.getCreditId();
         } else {
             return creditEntityOptional.get().getCreditId();

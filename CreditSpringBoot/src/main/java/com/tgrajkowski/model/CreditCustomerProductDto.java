@@ -5,6 +5,8 @@ import com.tgrajkowski.model.customer.CustomerDto;
 import com.tgrajkowski.model.product.ProductDto;
 import lombok.*;
 
+import javax.validation.Valid;
+
 @Getter
 @Builder
 @ToString
@@ -12,7 +14,10 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class CreditCustomerProductDto {
+    @Valid
     private CreditDto creditDto;
+    @Valid
     private CustomerDto customerDto;
+    @Valid
     private ProductDto productDto;
 }

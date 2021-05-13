@@ -10,6 +10,7 @@ import com.tgrajkowski.model.product.ProductDto;
 import com.tgrajkowski.service.customer.CustomerService;
 import com.tgrajkowski.service.product.ProductService;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,10 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @TestPropertySource(locations = "classpath:application-test.properties")
 @ActiveProfiles("test")
@@ -215,6 +213,104 @@ class CreditServiceTest {
 
         List<CreditCustomerProductDto> all = creditService.findAll();
         Assert.assertEquals(creditEntities.size(), all.size());
+    }
+
+    @Test
+    public void createCreditTest() {
+        CreditCustomerProductDto creditCustomerProductDto = CreditCustomerProductDto.builder()
+                .creditDto(CreditDto.builder().creditName("creditName1").build())
+                .productDto(ProductDto.builder().productName("productName1").value(12).build())
+                .customerDto(CustomerDto.builder().id(1).firstName("customer1").build())
+                .build();
+        Optional<CreditEntity> creditEntityOptional = Optional.empty();
+        Integer customerId = 11;
+        Integer productId = 13;
+        Integer creditId = 123;
+        CreditEntity creditEntity = CreditEntity.builder().creditName("creditName1").productId(1).customerId(1).build();
+        CreditEntity creditEntitySaved = CreditEntity.builder().creditId(creditId).creditName("creditName1").productId(1).customerId(1).build();
+
+        Mockito.when(creditRepositoryPaging.findCreditEntityByCreditName(creditCustomerProductDto.getCreditDto().getCreditName()))
+                .thenReturn(creditEntityOptional);
+        Mockito.when(customerService.postCustomer(creditCustomerProductDto.getCustomerDto())).thenReturn(customerId);
+        Mockito.when(productService.postProduct(creditCustomerProductDto.getProductDto())).thenReturn(productId);
+
+        Mockito.when(creditMapper.mapToCreditEntity(creditCustomerProductDto.getCreditDto(), customerId, productId))
+                .thenReturn(creditEntity);
+        Mockito.when(creditRepositoryPaging.save(Mockito.any())).thenReturn(creditEntitySaved);
+
+        Integer result = creditService.createCredit(creditCustomerProductDto);
+        Assert.assertEquals(creditId, result);
+    }
+
+    @Test
+    public void createCreditAlreadyExistTest() {
+        CreditCustomerProductDto creditCustomerProductDto = CreditCustomerProductDto.builder()
+                .creditDto(CreditDto.builder().creditName("creditName1").build())
+                .productDto(ProductDto.builder().productName("productName1").value(12).build())
+                .customerDto(CustomerDto.builder().id(1).firstName("customer1").build())
+                .build();
+        Integer creditId = 123;
+        Optional<CreditEntity> creditEntityOptional = Optional.of(CreditEntity.builder().creditId(creditId).creditName("creditName1").productId(1).customerId(1).build());
+
+
+        Mockito.when(creditRepositoryPaging.findCreditEntityByCreditName(creditCustomerProductDto.getCreditDto().getCreditName()))
+                .thenReturn(creditEntityOptional);
+        Integer result = creditService.createCredit(creditCustomerProductDto);
+        Assert.assertEquals(creditId, result);
+    }
+
+
+    @Test
+    public void createCreditCustomerIdIsNullTest() {
+        CreditCustomerProductDto creditCustomerProductDto = CreditCustomerProductDto.builder()
+                .creditDto(CreditDto.builder().creditName("creditName1").build())
+                .productDto(ProductDto.builder().productName("productName1").value(12).build())
+                .customerDto(CustomerDto.builder().id(1).firstName("customer1").build())
+                .build();
+        Optional<CreditEntity> creditEntityOptional = Optional.empty();
+        Integer customerId = null;
+        Integer productId = 13;
+        Integer creditId = 123;
+        CreditEntity creditEntity = CreditEntity.builder().creditName("creditName1").productId(1).customerId(1).build();
+        CreditEntity creditEntitySaved = CreditEntity.builder().creditId(creditId).creditName("creditName1").productId(1).customerId(1).build();
+
+        Mockito.when(creditRepositoryPaging.findCreditEntityByCreditName(creditCustomerProductDto.getCreditDto().getCreditName()))
+                .thenReturn(creditEntityOptional);
+        Mockito.when(customerService.postCustomer(creditCustomerProductDto.getCustomerDto())).thenReturn(customerId);
+        Mockito.when(productService.postProduct(creditCustomerProductDto.getProductDto())).thenReturn(productId);
+        Mockito.when(creditMapper.mapToCreditEntity(creditCustomerProductDto.getCreditDto(), customerId, productId))
+                .thenReturn(creditEntity);
+        Mockito.when(creditRepositoryPaging.save(Mockito.any())).thenReturn(creditEntitySaved);
+
+        RuntimeException runtimeException = Assertions.assertThrows(RuntimeException.class, () -> creditService.createCredit(creditCustomerProductDto));
+        Assertions.assertEquals("customer id Not present", runtimeException.getMessage());
+    }
+
+
+    @Test
+    public void createCreditProductIdIsNullTest() {
+        CreditCustomerProductDto creditCustomerProductDto = CreditCustomerProductDto.builder()
+                .creditDto(CreditDto.builder().creditName("creditName1").build())
+                .productDto(ProductDto.builder().productName("productName1").value(12).build())
+                .customerDto(CustomerDto.builder().id(1).firstName("customer1").build())
+                .build();
+        Optional<CreditEntity> creditEntityOptional = Optional.empty();
+        Integer customerId = 155;
+        Integer productId = null;
+        Integer creditId = 123;
+        CreditEntity creditEntity = CreditEntity.builder().creditName("creditName1").productId(1).customerId(1).build();
+        CreditEntity creditEntitySaved = CreditEntity.builder().creditId(creditId).creditName("creditName1").productId(1).customerId(1).build();
+
+        Mockito.when(creditRepositoryPaging.findCreditEntityByCreditName(creditCustomerProductDto.getCreditDto().getCreditName()))
+                .thenReturn(creditEntityOptional);
+        Mockito.when(customerService.postCustomer(creditCustomerProductDto.getCustomerDto())).thenReturn(customerId);
+        Mockito.when(productService.postProduct(creditCustomerProductDto.getProductDto())).thenReturn(productId);
+        Mockito.when(creditMapper.mapToCreditEntity(creditCustomerProductDto.getCreditDto(), customerId, productId))
+                .thenReturn(creditEntity);
+        Mockito.when(creditRepositoryPaging.save(Mockito.any())).thenReturn(creditEntitySaved);
+
+        RuntimeException runtimeException = Assertions.assertThrows(RuntimeException.class, () -> creditService.createCredit(creditCustomerProductDto));
+        Assertions.assertEquals("product id not present ", runtimeException.getMessage());
     }
 
 

@@ -2,6 +2,7 @@ package com.tgrajkowski.model;
 
 
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.pl.PESEL;
 
 import javax.validation.constraints.NotEmpty;
@@ -20,18 +21,15 @@ public class CustomerDto {
     private Integer id;
 
     @NotEmpty
-    @Size(max = 20)
-    @NotNull
+    @Length(max = 20)
     private String firstName;
 
     @NotEmpty
     @Size(max = 20)
-    @NotNull
     @PESEL
     private String pesel;
 
     @NotEmpty
     @Size(max = 20)
-    @NotNull
     private String surname;
 }

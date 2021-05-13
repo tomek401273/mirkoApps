@@ -22,12 +22,12 @@ public class ProductController {
     }
 
     @GetMapping("{productId}")
-    public ProductDto getProduct(@PathVariable("productId") Integer productId) {
+    public ProductDto getProducts(@PathVariable("productId") Integer productId) {
         return productService.getProduct(productId);
     }
 
     @GetMapping
-    public List<ProductDto> getProduct() {
+    public List<ProductDto> getProducts() {
         return productService.getProducts();
     }
 
