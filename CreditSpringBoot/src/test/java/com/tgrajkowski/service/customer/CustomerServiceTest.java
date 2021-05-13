@@ -4,6 +4,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.google.gson.Gson;
 import com.tgrajkowski.model.customer.CustomerDto;
 import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +23,14 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 @ActiveProfiles("test")
 @SpringBootTest
 class CustomerServiceTest {
-    private WireMockServer wireMockServer;
+    private static WireMockServer wireMockServer;
+
     @Autowired
     private CustomerService customerService;
 
-    @BeforeEach
-    public void setup() {
-        wireMockServer = new WireMockServer(options().port(8084));
+    @BeforeAll
+    public static void setup() {
+        wireMockServer=new WireMockServer(options().port(8084));
         wireMockServer.start();
     }
 

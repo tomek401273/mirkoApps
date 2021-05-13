@@ -42,10 +42,20 @@ public class RetrieveDataFromApi {
     }
 
     public Integer postCustomer(URI uri, CustomerDto customerDto) {
-        return restTemplate.postForObject(uri, customerDto, Integer.class);
+        try {
+            return restTemplate.postForObject(uri, customerDto, Integer.class);
+        } catch (RestClientResponseException | ResourceAccessException | ResponseStatusException e) {
+            log.warn("problem with customerService: " + e.getMessage());
+        }
+        return null;
     }
 
     public Integer postProduct(URI uri, ProductDto customerDto) {
-        return restTemplate.postForObject(uri, customerDto, Integer.class);
+        try {
+            return restTemplate.postForObject(uri, customerDto, Integer.class);
+        } catch (RestClientResponseException | ResourceAccessException | ResponseStatusException e) {
+            log.warn("problem with customerService: " + e.getMessage());
+        }
+        return null;
     }
 }

@@ -4,6 +4,7 @@ import com.tgrajkowski.model.CustomerDto;
 import com.tgrajkowski.model.CustomerEntity;
 import com.tgrajkowski.model.CustomerRepository;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,11 @@ class CustomerServiceTest {
     private CustomerService customerService;
     @Autowired
     private CustomerRepository customerRepository;
+
+    @BeforeEach
+    public void beforeEach(){
+        customerRepository.deleteAll();
+    }
 
     @Test
     void createCustomerOkTest() {

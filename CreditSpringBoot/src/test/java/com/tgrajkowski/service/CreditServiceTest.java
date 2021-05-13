@@ -283,7 +283,7 @@ class CreditServiceTest {
         Mockito.when(creditRepositoryPaging.save(Mockito.any())).thenReturn(creditEntitySaved);
 
         RuntimeException runtimeException = Assertions.assertThrows(RuntimeException.class, () -> creditService.createCredit(creditCustomerProductDto));
-        Assertions.assertEquals("customer id Not present", runtimeException.getMessage());
+        Assertions.assertEquals("CustomerService didn't respond correctly.", runtimeException.getMessage());
     }
 
 
@@ -310,7 +310,7 @@ class CreditServiceTest {
         Mockito.when(creditRepositoryPaging.save(Mockito.any())).thenReturn(creditEntitySaved);
 
         RuntimeException runtimeException = Assertions.assertThrows(RuntimeException.class, () -> creditService.createCredit(creditCustomerProductDto));
-        Assertions.assertEquals("product id not present ", runtimeException.getMessage());
+        Assertions.assertEquals("ProductService didn't respond correctly.", runtimeException.getMessage());
     }
 
 

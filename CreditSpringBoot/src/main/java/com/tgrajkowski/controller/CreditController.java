@@ -1,8 +1,10 @@
 package com.tgrajkowski.controller;
 
+import com.tgrajkowski.exception.ImproperSampleFormatException;
 import com.tgrajkowski.model.CreditCustomerProductDto;
 import com.tgrajkowski.model.credit.CreditDto;
 import com.tgrajkowski.service.CreditService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,5 +32,11 @@ public class CreditController {
     @GetMapping
     public List<CreditCustomerProductDto> getAllCredit() {
         return creditService.findAll();
+    }
+
+    @ExceptionHandler(ImproperSampleFormatException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleImproperSampleFormatException(ImproperSampleFormatException e) {
+        return "Sorry one of microservices is down. Retry after a while. "+e.getMessage();
     }
 }

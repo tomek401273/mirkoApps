@@ -1,5 +1,6 @@
 package com.tgrajkowski.service;
 
+import com.tgrajkowski.exception.ImproperSampleFormatException;
 import com.tgrajkowski.model.CreditCustomerProductDto;
 import com.tgrajkowski.model.credit.CreditDto;
 import com.tgrajkowski.model.credit.CreditEntity;
@@ -41,10 +42,10 @@ public class CreditService {
             Integer customerId = customerService.postCustomer(creditCustomerProductDto.getCustomerDto());
             Integer productId = productService.postProduct(creditCustomerProductDto.getProductDto());
             if (customerId==null)
-                throw  new RuntimeException("customer id Not present");
+                throw  new ImproperSampleFormatException("CustomerService didn't respond correctly.");
 
             if (productId==null)
-                throw  new RuntimeException("product id not present ");
+                throw  new ImproperSampleFormatException("ProductService didn't respond correctly.");
 
             CreditEntity creditEntity = creditMapper
                     .mapToCreditEntity(creditCustomerProductDto.getCreditDto(), customerId, productId);

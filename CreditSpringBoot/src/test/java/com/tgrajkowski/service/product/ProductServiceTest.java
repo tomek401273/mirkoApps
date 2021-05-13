@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.google.gson.Gson;
 import com.tgrajkowski.model.product.ProductDto;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +22,13 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 @ActiveProfiles("test")
 @SpringBootTest
 class ProductServiceTest {
-    private WireMockServer wireMockServer;
+    private static WireMockServer wireMockServer;
 
     @Autowired
     private ProductService productService;
 
-    @BeforeEach
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         wireMockServer = new WireMockServer(options().port(8085));
         wireMockServer.start();
     }
@@ -144,10 +145,7 @@ class ProductServiceTest {
 
     @Test
     public void groupByIdEmptyArrayTest() {
-        ProductDto[] productDtos = new ProductDto[]{
-                ProductDto.builder().productId(1).productName("productName1").value(12).build(),
-                ProductDto.builder().productId(2).productName("productName2").value(13).build()
-        };
+        ProductDto[] productDtos = new ProductDto[]{};
         Map<Integer, ProductDto> idProductDtoMap = productService.groupById(productDtos);
         Assert.assertEquals(idProductDtoMap.size(), 0);
     }
